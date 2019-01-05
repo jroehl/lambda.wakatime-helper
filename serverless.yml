@@ -1,0 +1,115 @@
+service: wakatime-helper
+
+plugins:
+  - serverless-plugin-include-dependencies
+  - serverless-offline
+  - serverless-domain-manager
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev # you can override this via the CLI argument
+  apiKeys:
+    - ${self:service}-key-${self:custom.stage}
+  usagePlan:
+    quota:
+      limit: 2000
+      period: MONTH
+    throttle:
+      burstLimit: 10
+      rateLimit: 5
+  environment: # Service wide environment variables
+    STAGE: ${self:custom.stage}
+    DYNAMODB_TABLE: ${self:service}-${self:custom.stage}
+    WAKATIME_APIKEY: ${ssm:wakatimeApiKey, env:WAKATIME_APIKEY}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
+
+custom:
+  # https://github.com/amplify-education/serverless-domain-manager
+  stage: ${opt:stage, self:provider.stage}
+  crons:
+    production:
+      rate: cron(0 0 * * ? *)
+      description: Trigger every day at 00:00.
+    dev:
+      rate: cron(0 0 * * ? *)
+      description: Trigger every day at 00:00.
+  domains:
+    production: lapi.johannroehl.de
+    dev: dev-lapi.johannroehl.de
+  customDomain:
+    basePath: wakatime-helper
+    domainName: ${self:custom.domains.${self:custom.stage}}
+    stage: ${self:custom.stage}
+    createRoute53Record: false
+
+functions:
+  poll:
+    handler: handler.poll
+    events:
+      - http:
+          private: true
+          path: /poll/{timespan}
+          method: get
+          request:
+          input:
+            timespan: 2
+          parameters:
+            paths:
+              timespan: true
+      - http:
+          private: true
+          path: /poll/{timespan}/{enddate}
+          method: get
+          request:
+          parameters:
+            paths:
+              timespan: true
+              enddate: true
+      - schedule:
+          enabled: true
+          rate: ${self:custom.crons.${self:custom.stage}.rate}
+          description: ${self:custom.crons.${self:custom.stage}.description}
+  query:
+    handler: handler.query
+    events:
+      - http:
+          private: true
+          path: /query/{timespan}
+          method: get
+          request:
+          parameters:
+            paths:
+              timespan: true
+      - http:
+          private: true
+          path: /query/{timespan}/{enddate}
+          method: get
+          request:
+          parameters:
+            paths:
+              timespan: true
+              enddate: true
+
+resources: # CloudFormation template syntax
+  Resources:
+    WakatimeDumperData:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: date
+            AttributeType: S
+        KeySchema:
+          - AttributeName: date
+            KeyType: HASH

@@ -1,0 +1,37 @@
+{
+  "name": "wakatime-helper",
+  "version": "1.0.0",
+  "description": "Dump the data from wakatime regularly to dynamodb database",
+  "main": "handler.js",
+  "scripts": {
+    "test": "node handler.js",
+    "deploy": "serverless deploy -s dev --aws-profile $AWS_PROFILE --region $AWS_REGION",
+    "deploy:prod": "serverless deploy -s production --aws-profile $AWS_PROFILE --region $AWS_REGION",
+    "start:offline": "serverless offline start --port 6060",
+    "create:domain": "serverless create_domain",
+    "logs": "serverless logs -s dev -f poll",
+    "logs:prod": "serverless logs -s production -f poll",
+    "invoke": "serverless invoke --aws-profile jrdev -s dev -f poll --logs",
+    "invoke:local": "serverless invoke --aws-profile jrdev local --f poll",
+    "invoke:prod": "serverless invoke --aws-profile jrdev -s production -f poll"
+  },
+  "keywords": [
+    "wakatime",
+    "dynamodb",
+    "dump"
+  ],
+  "author": "jroehl <mail@johannroehl.de>",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.383.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "serverless": "^1.35.1",
+    "serverless-domain-manager": "^2.6.10",
+    "serverless-offline": "^3.31.3",
+    "serverless-plugin-include-dependencies": "^3.2.1"
+  },
+  "devDependencies": {
+    "prettier": "1.15.3"
+  }
+}
