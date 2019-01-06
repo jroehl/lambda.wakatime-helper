@@ -61,8 +61,6 @@ functions:
           path: /poll/{timespan}
           method: get
           request:
-          input:
-            timespan: 2
           parameters:
             paths:
               timespan: true
@@ -79,6 +77,8 @@ functions:
           enabled: true
           rate: ${self:custom.crons.${self:custom.stage}.rate}
           description: ${self:custom.crons.${self:custom.stage}.description}
+          input:
+            timespan: 2
   query:
     handler: handler.query
     events:

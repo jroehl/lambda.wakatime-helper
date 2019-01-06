@@ -28,43 +28,6 @@ module.exports.reduceResponse = (data, keys = ['categories', 'editors', 'languag
   return res;
 };
 
-// /**
-//  * [STEP2-ARRAY]
-//  * Prepare array for dynamodb dump
-//  * @param {array} data
-//  * @param {array} [keys=['categories', 'editors', 'languages', 'operating_systems', 'projects']]
-//  * @returns {object}
-//  */
-// const convertArray = array => ({ L: array.map(({ total_seconds, name }) => ({ M: { total_seconds: { N: total_seconds.toString() }, name: { S: name } } })) });
-
-// /**
-//  * [STEP2]
-//  * Prepare data for dynamodb dump
-//  * @param {array} data
-//  * @param {array} [keys=['categories', 'editors', 'languages', 'operating_systems', 'projects']]
-//  * @returns {object}
-//  */
-// module.exports.convertToDynamoDBdump = (data, keys = ['categories', 'editors', 'languages', 'operating_systems', 'projects']) => {
-//   const res = {
-//     'wakatime-data': data.map(({ total_seconds, date, projects, ...rest }) => {
-//       return {
-//         PutRequest: {
-//           Item: {
-//             ...keys.reduce((red, key) => {
-//               const value = rest[key];
-//               if (!value) return red;
-//               return { ...red, [key]: convertArray(value) };
-//             }, {}),
-//             date: { S: date },
-//             total_seconds: { N: total_seconds.toString() },
-//           },
-//         },
-//       };
-//     }),
-//   };
-//   return res;
-// };
-
 /**
  * Convert seconds to d,h,m,s and parse as human readable string
  * @param {number} total_seconds
@@ -136,4 +99,33 @@ module.exports.parseReduced = (data, keys = ['categories', 'editors', 'languages
     total: sanitizeTime(res.total_seconds),
     ...keys.reduce((red, key) => ({ ...red, [key]: sanitizeAndSort(res[key]) }), {}),
   };
+};
+
+/**
+ * Convert date to ISO-8601 string
+ * @param {Date} date
+ * @returns {string}
+ */
+const localize = date => date.toISOString().split('T')[0];
+
+const DATE_CONST = {
+  DAY: 1,
+  WEEK: 6,
+  MONTH: 30,
+  YEAR: 364,
+};
+
+/**
+ * Parse dates to range
+ * @param {string} timeSpan (enum TODAY, YESTERDAY, WEEK, MONTH, YEAR)
+ * @param {string} [end=localize(new Date())] (date in ISO 8601 YYYY-MM-DD)
+ * @returns {object} range
+ */
+module.exports.parseRange = (timeSpan, end = localize(new Date())) => {
+  const date = new Date(end);
+  const endDate = localize(date);
+  const time = isNaN(timeSpan) ? DATE_CONST[timeSpan] : timeSpan;
+  date.setDate(date.getDate() - time);
+  const startDate = localize(date);
+  return { end: endDate, start: startDate };
 };

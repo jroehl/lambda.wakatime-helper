@@ -1,7 +1,7 @@
 {
   "name": "wakatime-helper",
   "version": "1.0.0",
-  "description": "Dump the data from wakatime regularly to dynamodb database",
+  "description": "Dump the data from wakatime regularly to dynamodb database and perform scans on the db",
   "main": "handler.js",
   "scripts": {
     "test": "node handler.js",
@@ -11,9 +11,9 @@
     "create:domain": "serverless create_domain",
     "logs": "serverless logs -s dev -f poll",
     "logs:prod": "serverless logs -s production -f poll",
-    "invoke": "serverless invoke --aws-profile jrdev -s dev -f poll --logs",
-    "invoke:local": "serverless invoke --aws-profile jrdev local --f poll",
-    "invoke:prod": "serverless invoke --aws-profile jrdev -s production -f poll"
+    "invoke": "serverless invoke --aws-profile $AWS_PROFILE -s dev -f poll --logs",
+    "invoke:local": "serverless invoke --aws-profile $AWS_PROFILE local --f query",
+    "invoke:prod": "serverless invoke --aws-profile $AWS_PROFILE -s production -f poll"
   },
   "keywords": [
     "wakatime",

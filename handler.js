@@ -1,30 +1,32 @@
 'use strict';
 
 const poll = require('./wakatime');
-const { reduceResponse, parseReduced } = require('./lib');
-const { upsert } = require('./dynamodb');
+const { reduceResponse, parseReduced, parseRange } = require('./lib');
+const { upsert, scan } = require('./dynamodb');
 
 module.exports.poll = async (event = {}) => {
-  const { pathParameters = {} } = event;
+  const { pathParameters = {}, timespan: ts = 1, enddate: ed } = event;
 
   console.log({ event });
 
-  const { timespan = 2, enddate } = pathParameters;
+  const { timespan = ts, enddate = ed } = pathParameters;
 
   try {
-    const { res, range } = await poll(timespan, enddate);
+    const { start, end } = parseRange(timespan, enddate);
+    console.log(`Requesting data from wakatime between "${start}" to "${end}"`);
+    const res = await poll(start, end);
     const reduced = reduceResponse(res.data);
     const upserts = await Promise.all(reduced.map(upsert));
     console.log(upserts.map(({ Item: { date, total_seconds } }) => ({ date, total_seconds })));
     return {
       statusCode: 200,
-      body: JSON.stringify({ range, upserts }),
+      body: JSON.stringify({ range: { start, end }, upserts }),
     };
-  } catch ({ statusCode = 400, ...error }) {
+  } catch (error) {
     console.error({ error });
     return {
-      statusCode,
-      body: JSON.stringify(error),
+      statusCode: error.statusCode || 400,
+      body: JSON.stringify({ err: error.message || error }),
     };
   }
 };
@@ -32,19 +34,20 @@ module.exports.poll = async (event = {}) => {
 module.exports.query = async (event = {}) => {
   const { pathParameters = {} } = event;
   const { timespan = 'DAY', enddate } = pathParameters;
-
   try {
-    const { res, range } = await poll(timespan, enddate);
-    const reduced = reduceResponse(res.data);
-    const parsed = parseReduced(reduced);
+    const { start, end } = parseRange(timespan, enddate);
+    console.log(`Requesting data from dynamoDb table "${process.env.DYNAMODB_TABLE}" between "${start}" to "${end}"`);
+    const response = await scan(start, end);
+    const parsed = parseReduced(response.Items);
     return {
       statusCode: 200,
-      body: JSON.stringify({ range, parsed }),
+      body: JSON.stringify({ range: { start, end }, parsed, response: response }),
     };
-  } catch ({ statusCode = 400, ...error }) {
+  } catch (error) {
+    console.error({ error });
     return {
-      statusCode,
-      body: JSON.stringify(error),
+      statusCode: error.statusCode || 400,
+      body: JSON.stringify({ err: error.message || error }),
     };
   }
 };
