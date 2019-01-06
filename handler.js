@@ -6,9 +6,6 @@ const { upsert, scan } = require('./dynamodb');
 
 module.exports.poll = async (event = {}) => {
   const { pathParameters = {}, timespan: ts = 1, enddate: ed } = event;
-
-  console.log({ event });
-
   const { timespan = ts, enddate = ed } = pathParameters;
 
   try {
@@ -18,6 +15,7 @@ module.exports.poll = async (event = {}) => {
     const reduced = reduceResponse(res.data);
     const upserts = await Promise.all(reduced.map(upsert));
     console.log(upserts.map(({ Item: { date, total_seconds } }) => ({ date, total_seconds })));
+
     return {
       statusCode: 200,
       body: JSON.stringify({ range: { start, end }, upserts }),
@@ -34,11 +32,13 @@ module.exports.poll = async (event = {}) => {
 module.exports.query = async (event = {}) => {
   const { pathParameters = {} } = event;
   const { timespan = 'DAY', enddate } = pathParameters;
+
   try {
     const { start, end } = parseRange(timespan, enddate);
     console.log(`Requesting data from dynamoDb table "${process.env.DYNAMODB_TABLE}" between "${start}" to "${end}"`);
     const response = await scan(start, end);
     const parsed = parseReduced(response.Items);
+
     return {
       statusCode: 200,
       body: JSON.stringify({ range: { start, end }, parsed, response: response }),

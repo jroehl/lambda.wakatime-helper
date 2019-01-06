@@ -47,7 +47,7 @@ custom:
     production: lapi.johannroehl.de
     dev: dev-lapi.johannroehl.de
   customDomain:
-    basePath: wakatime-helper
+    basePath: ${self:service}
     domainName: ${self:custom.domains.${self:custom.stage}}
     stage: ${self:custom.stage}
     createRoute53Record: false

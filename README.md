@@ -8,4 +8,3 @@ Dump the data from wakatime regularly to dynamodb database and perform scans on 
 ## TODO
 
 - Setup CiCd
-- Remove event log
