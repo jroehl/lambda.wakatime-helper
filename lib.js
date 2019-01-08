@@ -117,13 +117,17 @@ const DATE_CONST = {
 
 /**
  * Parse dates to range
- * @param {string} timeSpan (enum TODAY, YESTERDAY, WEEK, MONTH, YEAR)
+ * @param {string} timeSpan (enum TODAY, YESTERDAY, WEEK, MONTH, YEAR or number or date in ISO 8601)
  * @param {string} [end=localize(new Date())] (date in ISO 8601 YYYY-MM-DD)
  * @returns {object} range
  */
 module.exports.parseRange = (timeSpan, end = localize(new Date())) => {
   const date = new Date(end);
   const endDate = localize(date);
+  // is ISO 8601 date string
+  if (`${timeSpan}`.match(/^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])$/g)) {
+    return { end: endDate, start: timeSpan };
+  }
   const time = isNaN(timeSpan) ? DATE_CONST[timeSpan] : timeSpan;
   date.setDate(date.getDate() - time);
   const startDate = localize(date);

@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const poll = require('./wakatime');
 const { reduceResponse, parseReduced, parseRange } = require('./lib');
 const { upsert, scan } = require('./dynamodb');
@@ -50,4 +51,16 @@ module.exports.query = async (event = {}) => {
       body: JSON.stringify({ err: error.message || error }),
     };
   }
+};
+
+module.exports.visualize = async (event = {}) => {
+  // Get request and request headers
+  // const request = event.Records[0].cf.request;
+  return {
+    statusCode: 200,
+    headers: {
+      'Content-Type': 'text/html',
+    },
+    body: fs.readFileSync('./query.html', 'utf-8'),
+  };
 };

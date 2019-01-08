@@ -7,7 +7,7 @@
     "test": "node handler.js",
     "deploy": "serverless deploy -s dev --aws-profile $AWS_PROFILE --region $AWS_REGION",
     "deploy:prod": "serverless deploy -s production --aws-profile $AWS_PROFILE --region $AWS_REGION",
-    "start:offline": "serverless offline start --port 6060",
+    "start:offline": "serverless offline start --port 6060 --noAuth",
     "create:domain": "serverless create_domain",
     "logs": "serverless logs -s dev -f poll",
     "logs:prod": "serverless logs -s production -f poll",
