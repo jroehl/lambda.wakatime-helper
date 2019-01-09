@@ -87,9 +87,7 @@
             dataType: 'json',
             headers: { 'x-api-key': '{{X_APIKEY}}' },
             url: `{{DOMAIN}}/query/${startDate}/${endDate}`,
-            success: value => {
-              console.log(value);
-            },
+            success: createVisuals,
             error: (err, _, thrownError) => {
               console.error(err);
               alert(err.responseText || thrownError || 'REQUEST ERROR');
