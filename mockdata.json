@@ -1,0 +1,258 @@
+{
+  "range": {
+    "start": "2019-01-09",
+    "end": "2019-01-09"
+  },
+  "parsed": {
+    "total": {
+      "total_string": "3 hours 55 minutes 17 seconds",
+      "total_seconds": 14117,
+      "times": {
+        "days": 0,
+        "hours": 3,
+        "minutes": 55,
+        "seconds": 17
+      }
+    },
+    "categories": [
+      {
+        "name": "Coding",
+        "total_string": "3 hours 55 minutes 16 seconds",
+        "total_seconds": 14116,
+        "times": {
+          "days": 0,
+          "hours": 3,
+          "minutes": 55,
+          "seconds": 16
+        }
+      }
+    ],
+    "editors": [
+      {
+        "name": "VS Code",
+        "total_string": "3 hours 55 minutes 16 seconds",
+        "total_seconds": 14116,
+        "times": {
+          "days": 0,
+          "hours": 3,
+          "minutes": 55,
+          "seconds": 16
+        }
+      }
+    ],
+    "languages": [
+      {
+        "name": "Go",
+        "total_string": "2 hours 31 minutes 8 seconds",
+        "total_seconds": 9068,
+        "times": {
+          "days": 0,
+          "hours": 2,
+          "minutes": 31,
+          "seconds": 8
+        }
+      },
+      {
+        "name": "JavaScript",
+        "total_string": "31 minutes 28 seconds",
+        "total_seconds": 1888,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 31,
+          "seconds": 28
+        }
+      },
+      {
+        "name": "JSON",
+        "total_string": "28 minutes 38 seconds",
+        "total_seconds": 1718,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 28,
+          "seconds": 38
+        }
+      },
+      {
+        "name": "HTML",
+        "total_string": "21 minutes 30 seconds",
+        "total_seconds": 1290,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 21,
+          "seconds": 30
+        }
+      },
+      {
+        "name": "YAML",
+        "total_string": "1 minutes 33 seconds",
+        "total_seconds": 93,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 1,
+          "seconds": 33
+        }
+      },
+      {
+        "name": "Git",
+        "total_string": "37 seconds",
+        "total_seconds": 37,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 0,
+          "seconds": 37
+        }
+      },
+      {
+        "name": "Other",
+        "total_string": "14 seconds",
+        "total_seconds": 14,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 0,
+          "seconds": 14
+        }
+      },
+      {
+        "name": "SCSS",
+        "total_string": "6 seconds",
+        "total_seconds": 6,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 0,
+          "seconds": 6
+        }
+      }
+    ],
+    "operating_systems": [
+      {
+        "name": "Mac",
+        "total_string": "3 hours 55 minutes 16 seconds",
+        "total_seconds": 14116,
+        "times": {
+          "days": 0,
+          "hours": 3,
+          "minutes": 55,
+          "seconds": 16
+        }
+      }
+    ],
+    "projects": [
+      {
+        "name": "shipping-label-api",
+        "total_string": "2 hours 31 minutes 8 seconds",
+        "total_seconds": 9068,
+        "times": {
+          "days": 0,
+          "hours": 2,
+          "minutes": 31,
+          "seconds": 8
+        }
+      },
+      {
+        "name": "web.vh-gruppe",
+        "total_string": "56 minutes 28 seconds",
+        "total_seconds": 3388,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 56,
+          "seconds": 28
+        }
+      },
+      {
+        "name": "lambda.wakatime-helper",
+        "total_string": "27 minutes 41 seconds",
+        "total_seconds": 1661,
+        "times": {
+          "days": 0,
+          "hours": 0,
+          "minutes": 27,
+          "seconds": 41
+        }
+      }
+    ]
+  },
+  "response": {
+    "Items": [
+      {
+        "date": "2019-01-09",
+        "languages": [
+          {
+            "name": "Go",
+            "total_seconds": 9068
+          },
+          {
+            "name": "JavaScript",
+            "total_seconds": 1888
+          },
+          {
+            "name": "JSON",
+            "total_seconds": 1718
+          },
+          {
+            "name": "HTML",
+            "total_seconds": 1290
+          },
+          {
+            "name": "YAML",
+            "total_seconds": 93
+          },
+          {
+            "name": "Git",
+            "total_seconds": 37
+          },
+          {
+            "name": "Other",
+            "total_seconds": 14
+          },
+          {
+            "name": "SCSS",
+            "total_seconds": 6
+          }
+        ],
+        "projects": [
+          {
+            "name": "shipping-label-api",
+            "total_seconds": 9068
+          },
+          {
+            "name": "web.vh-gruppe",
+            "total_seconds": 3388
+          },
+          {
+            "name": "lambda.wakatime-helper",
+            "total_seconds": 1661
+          }
+        ],
+        "categories": [
+          {
+            "name": "Coding",
+            "total_seconds": 14116
+          }
+        ],
+        "total_seconds": 14117,
+        "operating_systems": [
+          {
+            "name": "Mac",
+            "total_seconds": 14116
+          }
+        ],
+        "editors": [
+          {
+            "name": "VS Code",
+            "total_seconds": 14116
+          }
+        ]
+      }
+    ],
+    "Count": 1,
+    "ScannedCount": 366
+  }
+}

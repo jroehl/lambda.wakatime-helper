@@ -34,7 +34,7 @@ exports.handler = async event => {
   const encodedCreds = authorizationHeader.split(' ')[1];
   const [username, password] = new Buffer(encodedCreds, 'base64').toString().split(':');
 
-  if (!(username === 'admin' && password === 'secret')) return Unauthorized;
+  if (username !== process.env.WAKATIME_AUTH_USER || password !== process.env.WAKATIME_AUTH_PASS) return Unauthorized;
 
   const authResponse = buildAllowAllPolicy(event, username);
 

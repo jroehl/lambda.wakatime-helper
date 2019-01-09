@@ -4,40 +4,98 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.min.css" /> -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-datetimepicker/2.7.1/css/bootstrap-material-datetimepicker.min.css"
-    />
-    <title>Query wakatime db</title>
+    <title>wakatime-helper</title>
     <link rel="icon" href="images/favicon.png" />
     <style>
-      section {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      input {
+        width: 100%;
+      }
+      .daterangepicker td,
+      .daterangepicker th {
+        padding: 0;
+      }
+      .daterangepicker button {
+        height: auto;
+        line-height: unset;
+        margin-bottom: 0;
+      }
+      .results {
+        display: none;
       }
     </style>
   </head>
 
   <body>
-    <section>
-      <div class="input-daterange input-group" id="datepicker">
-        <input type="text" class="input-sm form-control" name="start" /> <span class="input-group-addon"> > </span>
-        <input type="text" class="input-sm form-control" name="end" />
-      </div>
+    <section class="container">
+      <h4>query wakatime db</h4>
+      <div class="row"><input type="text" name="daterange" /></div>
+      <div class="row"><input class="button-primary" type="submit" value="submit input" /></div>
     </section>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+    <section class="container results"><h4>results</h4></section>
     <script>
-      $('input').bootstrapMaterialDatePicker({
-        format: 'yyyy/mm/dd',
-        weekStart: 1,
-        autoclose: true,
-        todayHighlight: true,
-        toggleActive: true,
-        date: false,
+      const createVisuals = ({ parsed, range, response }) => {
+        const { total_string } = parsed.total;
+        const arrayKeys = ['projects', 'languages', 'categories', 'editors', 'operating_systems'];
+        const resElement = $('.results');
+        resElement.append(`<h5>Total time spent</h5><p>${total_string}</p>`);
+        arrayKeys.forEach(key => {
+          const values = parsed[key];
+          if (!values) return;
+          resElement.append(`
+          <h5>${key}</h5>
+          <table class="u-full-width">
+            <thead>
+              <tr>
+                <th>type</th>
+                <th>time</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${values.map(({ name, total_string }) => `<tr><td>${name}</td><td>${total_string}</td></tr>`).join('\n')}
+            </tbody>
+          </table>`);
+        });
+        resElement.show();
+      };
+      $('document').ready(() => {
+        const today = moment().format('YYYY-MM-DD');
+        let startDate = today;
+        let endDate = today;
+        $('input[name="daterange"]').daterangepicker({}, (start, end, label) => {
+          startDate = start.format('YYYY-MM-DD');
+          endDate = end.format('YYYY-MM-DD');
+          console.log('A new date selection was made: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+        });
+        $('input[type="submit"]').click(() => {
+          if (!startDate || !endDate) return alert('Choose end and startdate first');
+          console.log(`Requesting data between "${startDate}" to "${endDate}"`);
+
+          if (Boolean('{{IS_OFFLINE}}')) {
+            const mockData = JSON.parse('{{MOCK_DATA}}');
+            console.log('runs offline');
+            createVisuals(mockData);
+            return;
+          }
+
+          $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            headers: { 'x-api-key': '{{X_APIKEY}}' },
+            url: `{{DOMAIN}}/query/${startDate}/${endDate}`,
+            success: value => {
+              console.log(value);
+            },
+            error: (err, _, thrownError) => {
+              console.error(err);
+              alert(err.responseText || thrownError || 'REQUEST ERROR');
+            },
+          });
+        });
       });
     </script>
   </body>

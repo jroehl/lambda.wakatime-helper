@@ -1,5 +1,6 @@
 'use strict';
 
+const { APIGateway } = require('aws-sdk');
 const fs = require('fs');
 const poll = require('./wakatime');
 const { reduceResponse, parseReduced, parseRange } = require('./lib');
@@ -53,14 +54,31 @@ module.exports.query = async (event = {}) => {
   }
 };
 
-module.exports.visualize = async (event = {}) => {
-  // Get request and request headers
-  // const request = event.Records[0].cf.request;
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'text/html',
-    },
-    body: fs.readFileSync('./query.html', 'utf-8'),
-  };
+module.exports.visualize = async () => {
+  const apiGateway = new APIGateway();
+  try {
+    const { items } = await apiGateway
+      .getApiKeys({
+        includeValues: true,
+        nameQuery: process.env.X_APIKEY,
+      })
+      .promise();
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/html' },
+      body: fs
+        .readFileSync('./query.html', 'utf-8')
+        .replace('{{DOMAIN}}', process.env.DOMAIN)
+        .replace('{{X_APIKEY}}', items[0].value)
+        .replace('{{MOCK_DATA}}', process.env.IS_OFFLINE ? JSON.stringify(JSON.parse(fs.readFileSync('./mockdata.json', 'utf-8'))) : '{}')
+        .replace('{{IS_OFFLINE}}', !!process.env.IS_OFFLINE),
+    };
+  } catch (error) {
+    console.error({ error });
+    return {
+      statusCode: error.statusCode || 400,
+      body: JSON.stringify({ err: error.message || error }),
+    };
+  }
 };

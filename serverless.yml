@@ -20,8 +20,12 @@ provider:
       rateLimit: 5
   environment: # Service wide environment variables
     STAGE: ${self:custom.stage}
+    X_APIKEY: ${self:service}-key-${self:custom.stage}
     DYNAMODB_TABLE: ${self:service}-${self:custom.stage}
     WAKATIME_APIKEY: ${ssm:wakatimeApiKey, env:WAKATIME_APIKEY}
+    WAKATIME_AUTH_USER: ${ssm:wakatimeAuthUser, env:WAKATIME_AUTH_USER}
+    WAKATIME_AUTH_PASS: ${ssm:wakatimeAuthPass, env:WAKATIME_AUTH_PASS}
+    DOMAIN: 'https://${self:custom.domains.${self:custom.stage}}/${self:service}'
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -32,6 +36,10 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: 'arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}'
+    - Effect: Allow
+      Action:
+        - apigateway:GET
+      Resource: 'arn:aws:apigateway:eu-central-1::/apikeys'
 
 custom:
   # https://github.com/amplify-education/serverless-domain-manager
@@ -61,18 +69,18 @@ functions:
           path: /poll/{timespan}
           method: get
           request:
-          parameters:
-            paths:
-              timespan: true
+            parameters:
+              paths:
+                timespan: true
       - http:
           private: true
           path: /poll/{timespan}/{enddate}
           method: get
           request:
-          parameters:
-            paths:
-              timespan: true
-              enddate: true
+            parameters:
+              paths:
+                timespan: true
+                enddate: true
       - schedule:
           enabled: true
           rate: ${self:custom.crons.${self:custom.stage}.rate}
@@ -86,19 +94,21 @@ functions:
           private: true
           path: /query/{timespan}
           method: get
+          cors: true
           request:
-          parameters:
-            paths:
-              timespan: true
+            parameters:
+              paths:
+                timespan: true
       - http:
           private: true
           path: /query/{timespan}/{enddate}
           method: get
+          cors: true
           request:
-          parameters:
-            paths:
-              timespan: true
-              enddate: true
+            parameters:
+              paths:
+                timespan: true
+                enddate: true
 
   visualize:
     handler: handler.visualize
