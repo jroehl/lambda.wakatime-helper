@@ -2,9 +2,9 @@
 
 const { APIGateway } = require('aws-sdk');
 const fs = require('fs');
-const poll = require('./wakatime');
+const poll = require('./lib/wakatime');
+const { upsert, scan } = require('./lib/dynamodb');
 const { reduceResponse, parseReduced, parseRange } = require('./lib');
-const { upsert, scan } = require('./dynamodb');
 
 module.exports.poll = async (event = {}) => {
   const { pathParameters = {}, timespan: ts = 1, enddate: ed } = event;
@@ -68,10 +68,10 @@ module.exports.visualize = async () => {
       statusCode: 200,
       headers: { 'Content-Type': 'text/html' },
       body: fs
-        .readFileSync('./query.html', 'utf-8')
+        .readFileSync('./templates/query.html', 'utf-8')
         .replace('{{DOMAIN}}', process.env.DOMAIN)
         .replace('{{X_APIKEY}}', items[0].value)
-        .replace('{{MOCK_DATA}}', process.env.IS_OFFLINE ? JSON.stringify(JSON.parse(fs.readFileSync('./mockdata.json', 'utf-8'))) : '{}')
+        .replace('{{MOCK_DATA}}', process.env.IS_OFFLINE ? JSON.stringify(JSON.parse(fs.readFileSync('./data/mockdata.json', 'utf-8'))) : '{}')
         .replace('{{IS_OFFLINE}}', process.env.IS_OFFLINE ? '1' : ''),
     };
   } catch (error) {

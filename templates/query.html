@@ -4,12 +4,13 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>wakatime-helper</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" />
-    <title>wakatime-helper</title>
     <link rel="icon" href="images/favicon.png" />
     <style>
       input {
@@ -36,29 +37,72 @@
       <div class="row"><input type="text" name="daterange" /></div>
       <div class="row"><input class="button-primary" type="submit" value="submit input" /></div>
     </section>
-    <section class="container results"><h4>results</h4></section>
+    <section class="container results"></section>
     <script>
-      const createVisuals = ({ parsed, range, response }) => {
+      const COLS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+      const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      };
+      const createVisuals = data => {
+        console.log(data);
+        const { parsed, range, response } = data;
         const { total_string } = parsed.total;
-        const arrayKeys = ['projects', 'languages', 'categories', 'editors', 'operating_systems'];
+        const arraySets = [['projects', 'languages'], ['categories', 'editors', 'operating_systems']];
         const resElement = $('.results');
-        resElement.append(`<h5>Total time spent</h5><p>${total_string}</p>`);
-        arrayKeys.forEach(key => {
-          const values = parsed[key];
-          if (!values) return;
-          resElement.append(`
-          <h5>${key}</h5>
-          <table class="u-full-width">
-            <thead>
-              <tr>
-                <th>type</th>
-                <th>time</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${values.map(({ name, total_string }) => `<tr><td>${name}</td><td>${total_string}</td></tr>`).join('\n')}
-            </tbody>
-          </table>`);
+        resElement.empty();
+        resElement.append(`<h4>results</h4><h5>${range.start} to ${range.end}</br>total time spent</br>${total_string}</h5>`);
+        arraySets.forEach((set, i) => {
+          const setClass = `set_${i}`;
+          resElement.append(`<div class="${setClass} row"></div>`);
+          set.forEach(key => {
+            const values = parsed[key];
+            if (!values) return;
+            const id = `${key}-chart`;
+            $(`.${setClass}`).append(
+              `
+              <div class="${COLS[12 / set.length]} columns">
+                <canvas id="${id}" width="400" height="400"></canvas>
+              <div>
+              `
+            );
+            const backgroundColor = values.map(getRandomColor);
+            const data = values.map(({ total_seconds }) => total_seconds);
+            const labels = values.map(({ name, total_string }) => `${name} | ${total_string}`);
+            const beforeLabels = values.map(({ name }) => name);
+            const customLabels = values.map(({ total_string }) => total_string);
+            const total = values.reduce((red, { total_seconds }) => red + total_seconds, 0);
+            const myDoughnutChart = new Chart(id, {
+              type: 'doughnut',
+              data: {
+                datasets: [{ data, backgroundColor }],
+                labels: beforeLabels,
+              },
+              options: {
+                title: {
+                  display: true,
+                  text: key,
+                },
+                legend: {
+                  position: 'top',
+                  labels: {
+                    boxWidth: 20,
+                  },
+                },
+                tooltips: {
+                  callbacks: {
+                    beforeLabel: ({ index }) => beforeLabels[index],
+                    label: ({ index }) => customLabels[index],
+                    afterLabel: ({ index }) => `(${Math.round((data[index] / total) * 100)}%)`,
+                  },
+                },
+              },
+            });
+          });
         });
         resElement.show();
       };
