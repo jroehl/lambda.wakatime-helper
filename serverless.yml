@@ -123,7 +123,7 @@ functions:
             type: request
 
   authorizer:
-    handler: authorizer.handler
+    handler: lib/authorizer.handler
 
 resources: # CloudFormation template syntax
   Resources:
