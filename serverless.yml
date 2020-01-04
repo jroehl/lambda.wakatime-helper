@@ -7,7 +7,7 @@ plugins:
 
 provider:
   name: aws
-  runtime: nodejs8.10
+  runtime: nodejs12.x
   stage: dev # you can override this via the CLI argument
   apiKeys:
     - ${self:service}-key-${self:custom.stage}
@@ -52,8 +52,8 @@ custom:
       rate: cron(0 0 * * ? *)
       description: Trigger every day at 00:00.
   domains:
-    production: lapi.johannroehl.de
-    dev: dev-lapi.johannroehl.de
+    production: ${env:PRODUCTION_DOMAIN}
+    dev: ${env:DEV_DOMAIN}
   customDomain:
     basePath: ${self:service}
     domainName: ${self:custom.domains.${self:custom.stage}}
